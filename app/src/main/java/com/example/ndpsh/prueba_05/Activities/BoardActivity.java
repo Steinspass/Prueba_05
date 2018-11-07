@@ -8,12 +8,15 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.ndpsh.prueba_05.Adapters.BoardAdapter;
 import com.example.ndpsh.prueba_05.R;
 import com.example.ndpsh.prueba_05.models.Board;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 /**
  *  Created by Naim on 06/11/18
@@ -24,6 +27,11 @@ public class BoardActivity extends AppCompatActivity {
     private Realm realm;
 
     private FloatingActionButton fab;
+    private ListView listView;
+    private BoardAdapter adapter;
+
+    private RealmResults<Board> boards;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +41,12 @@ public class BoardActivity extends AppCompatActivity {
 
         // Db Realm
         realm = Realm.getDefaultInstance();
+        boards = realm.where(Board.class).findAll();
+
+        adapter = new BoardAdapter(this, boards, R.layout.list_view_board_item);
+
+        listView = (ListView) findViewById(R.id.listViewBoards);
+        listView.setAdapter(adapter);
 
         fab = (FloatingActionButton) findViewById(R.id.fabAddBoard);
         fab.setOnClickListener(new View.OnClickListener() {
