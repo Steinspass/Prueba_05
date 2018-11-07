@@ -4,6 +4,8 @@ import android.app.Application;
 
 import com.example.ndpsh.prueba_05.models.Board;
 import com.example.ndpsh.prueba_05.models.Note;
+import com.facebook.stetho.Stetho;
+import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -29,6 +31,12 @@ public class MyApplication extends Application {
         Realm realm = Realm.getDefaultInstance();
         BoardID = getIdByTable(realm, Board.class);
         NoteID = getIdByTable(realm, Note.class);
+
+        Stetho.initialize(
+                Stetho.newInitializerBuilder(this)
+                        .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
+                        .enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build())
+                        .build());
         realm.close();
     }
 
