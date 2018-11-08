@@ -1,12 +1,14 @@
 package com.example.ndpsh.prueba_05.Activities;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -16,13 +18,14 @@ import com.example.ndpsh.prueba_05.R;
 import com.example.ndpsh.prueba_05.models.Board;
 
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 
 /**
  *  Created by Naim on 06/11/18
  */
 
-public class BoardActivity extends AppCompatActivity {
+public class BoardActivity extends AppCompatActivity implements RealmChangeListener<RealmResults<Board>>, AdapterView.OnItemClickListener {
 
     private Realm realm;
 
@@ -42,11 +45,15 @@ public class BoardActivity extends AppCompatActivity {
         // Db Realm
         realm = Realm.getDefaultInstance();
         boards = realm.where(Board.class).findAll();
+        boards.addChangeListener(this);
+
+
 
         adapter = new BoardAdapter(this, boards, R.layout.list_view_board_item);
 
         listView = (ListView) findViewById(R.id.listViewBoards);
         listView.setAdapter(adapter);
+        listView.setOnItemClickListener(this);
 
         fab = (FloatingActionButton) findViewById(R.id.fabAddBoard);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -55,6 +62,10 @@ public class BoardActivity extends AppCompatActivity {
                 showAlertForCreatingBoard("title", "board");
             }
         });
+
+        realm.beginTransaction();
+        realm.deleteAll();
+        realm.commitTransaction();
     }
         //** CRUD Actions **/
         private void createdNewBoard(String boardName){
@@ -106,4 +117,16 @@ public class BoardActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onChange(RealmResults<Board> boards) {
+        adapter.notifyDataSetChanged();
+    }
+
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        Intent intent = new Intent(BoardActivity.this, NoteActivity.class);
+        intent.putExtra("id",boards.get(position).getId());
+        startActivity(intent);
+    }
 }
